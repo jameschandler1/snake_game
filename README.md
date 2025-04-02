@@ -1,6 +1,11 @@
 # snake_game
  made using ChatGPT (free) some additional tweaks done by hand but mostly just ai, all contained within a single directory 'snake_game'.
 
+## dependancy/library
+ - JPanel
+ - JFrame
+ -  
+
 ## prompts
  
  1. create a snake game application in java with a gui all contained within a single directory named snake_game
