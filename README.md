@@ -32,3 +32,9 @@ Compile the program using:
 run the program:
 
 <img width="600" alt="Screenshot 2025-04-02 at 3 07 50 PM" src="https://github.com/user-attachments/assets/91c1709b-34ac-4316-b8a0-69168a646fc8" />
+
+## play agian
+<img width="750" alt="Screenshot 2025-04-02 at 4 39 10 PM" src="https://github.com/user-attachments/assets/cfe71e05-31c9-4f47-9153-af059d9bda26" />
+
+## gameplay
+<img width="750" alt="Screenshot 2025-04-02 at 4 40 19 PM" src="https://github.com/user-attachments/assets/ff7140f0-7fd7-446b-998d-f1e0458d40db" />
