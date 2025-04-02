@@ -21,7 +21,9 @@ Save the file as SnakeGame.java inside snake_game.
 Open a terminal or command prompt and navigate to snake_game.
 
 Compile the program using:
-<img width="400" alt="Screenshot 2025-04-02 at 3 07 16 PM" src="https://github.com/user-attachments/assets/154ea3cf-ddc5-48fc-8939-43affb97ef6f" />
 
-run the program
-<img width="400" alt="Screenshot 2025-04-02 at 3 07 50 PM" src="https://github.com/user-attachments/assets/91c1709b-34ac-4316-b8a0-69168a646fc8" />
+<img width="600" alt="Screenshot 2025-04-02 at 3 07 16 PM" src="https://github.com/user-attachments/assets/154ea3cf-ddc5-48fc-8939-43affb97ef6f" />
+
+run the program:
+
+<img width="600" alt="Screenshot 2025-04-02 at 3 07 50 PM" src="https://github.com/user-attachments/assets/91c1709b-34ac-4316-b8a0-69168a646fc8" />
