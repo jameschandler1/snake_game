@@ -10,8 +10,8 @@ import java.io.*;
 import java.util.Random;
 
 public class SnakeGame extends JPanel implements ActionListener {
-    private final int TILE_SIZE = 20;
-    private final int WIDTH = 600;
+    private final int TILE_SIZE = 18;
+    private final int WIDTH = 800;
     private final int HEIGHT = 600;
     private final int TOTAL_TILES = (WIDTH * HEIGHT) / (TILE_SIZE * TILE_SIZE);
     private static final String HIGH_SCORE_FILE = "highscore.txt";
@@ -41,7 +41,7 @@ public class SnakeGame extends JPanel implements ActionListener {
         score = 0;
         placeFood();
         running = true;
-        movementTimer = new Timer(100, this);
+        movementTimer = new Timer(95, this);
         scoreTimer = new Timer(1000, e -> {
             if (running) {
                 score += 1;
@@ -66,16 +66,16 @@ public class SnakeGame extends JPanel implements ActionListener {
     
     private void draw(Graphics g) {
         if (running) {
-            g.setColor(Color.RED);
+            g.setColor(Color.YELLOW);
             g.fillOval(foodX, foodY, TILE_SIZE, TILE_SIZE);
             
             for (int i = 0; i < bodyParts; i++) {
-                g.setColor(i == 0 ? Color.GREEN : Color.LIGHT_GRAY);
+                g.setColor(i == 0 ? Color.RED : Color.GREEN);
                 g.fillRect(x[i], y[i], TILE_SIZE, TILE_SIZE);
             }
             
             g.setColor(Color.WHITE);
-            g.setFont(new Font("Arial", Font.BOLD, 20));
+            g.setFont(new Font("Roboto", Font.BOLD, 20));
             g.drawString("Score: " + score, 10, 20);
             g.drawString("High Score: " + highScore, 10, 40);
         } else {
@@ -100,7 +100,7 @@ public class SnakeGame extends JPanel implements ActionListener {
     private void checkFood() {
         if (x[0] == foodX && y[0] == foodY) {
             bodyParts++;
-            score += 10;
+            score += 100;
             placeFood();
         }
     }
@@ -123,10 +123,10 @@ public class SnakeGame extends JPanel implements ActionListener {
     
     private void gameOver(Graphics g) {
         g.setColor(Color.WHITE);
-        g.setFont(new Font("Arial", Font.BOLD, 40));
+        g.setFont(new Font("Roboto", Font.BOLD, 40));
         FontMetrics metrics = getFontMetrics(g.getFont());
         g.drawString("Game Over", (WIDTH - metrics.stringWidth("Game Over")) / 2, HEIGHT / 2);
-        g.setFont(new Font("Arial", Font.BOLD, 20));
+        g.setFont(new Font("Roboto", Font.BOLD, 20));
         g.drawString("Final Score: " + score, (WIDTH - metrics.stringWidth("Final Score: " + score)) / 2, HEIGHT / 2 + 40);
         g.drawString("High Score: " + highScore, (WIDTH - metrics.stringWidth("High Score: " + highScore)) / 2, HEIGHT / 2 + 70);
         
@@ -143,8 +143,8 @@ public class SnakeGame extends JPanel implements ActionListener {
         direction = 'R';
         score = 0;
         running = true;
-        x[0] = 0;
-        y[0] = 0;
+        x[0] = 25;
+        y[0] = 50;
         placeFood();
         movementTimer.start();
         scoreTimer.start();
