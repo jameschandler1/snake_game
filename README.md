@@ -15,17 +15,17 @@
  6. can you create a different timer for the score variable that is separate of the snakes movement timer and have it increment the score variable every 1000 milliseconds
  7. can you add functionality to save the high-score in a separate text file and make it so upon restart it displays the current high-score
  8. make it so when the game resets the snake is positioned at 0,0
+ 9. enhance the GUI, format the text that displays the current score and the high score in a retro way and also make sure the changes are made to the play again prompt as well.
+ 10. yes please add sound effects and a retro themed background
+ 11. can you create a volume and mute functionality for the sound effects
+ 12. create a volume slider and button on gui 
 
 ## how to run
 
 1. To compile and run it:
-
 2. Create a directory named snake_game.
-
 3. Save the file as SnakeGame.java inside snake_game.
-
 4. Open a terminal or command prompt and navigate to snake_game.
-
 5. Compile the program using:
 
 <img width="600" alt="Screenshot 2025-04-02 at 3 07 16 PM" src="https://github.com/user-attachments/assets/154ea3cf-ddc5-48fc-8939-43affb97ef6f" />
