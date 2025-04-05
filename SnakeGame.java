@@ -1,9 +1,6 @@
 package snake_game;
 
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Clip;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.FloatControl;
+import javax.sound.sampled.*;
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -14,7 +11,7 @@ import java.util.Random;
 
 public class SnakeGame extends JPanel implements ActionListener {
     private final int TILE_SIZE = 20;
-    private final int WIDTH = 800;
+    private final int WIDTH = 600;
     private final int HEIGHT = 600;
     private final int TOTAL_TILES = (WIDTH * HEIGHT) / (TILE_SIZE * TILE_SIZE);
     private static final String HIGH_SCORE_FILE = "highscore.txt";
@@ -31,13 +28,11 @@ public class SnakeGame extends JPanel implements ActionListener {
     private int score = 0;
     private int highScore;
     private Image backgroundImage;
-
-    private boolean soundMuted = false;
-    private float volume = 1.0f;
+    private Clip backgroundMusic;
 
     private final Font retroFont = new Font("Courier New", Font.BOLD, 22);
-    private JSlider volumeSlider;
-    private JButton muteButton;
+    private boolean soundMuted = false;
+    private float volume = 1.0f;
 
     public SnakeGame() {
         setPreferredSize(new Dimension(WIDTH, HEIGHT));
@@ -45,39 +40,34 @@ public class SnakeGame extends JPanel implements ActionListener {
         addKeyListener(new KeyHandler());
         loadHighScore();
         loadBackground();
-        addVolumeControls();
+        startBackgroundMusic();
         startGame();
     }
 
     private void loadBackground() {
         try {
-            backgroundImage = new ImageIcon(getClass().getResource("/retro_bg.png")).getImage();
+            backgroundImage = new ImageIcon("retro_bg.png").getImage();
         } catch (Exception e) {
             backgroundImage = null;
         }
     }
 
-    private void addVolumeControls() {
-        setLayout(null);
-
-        muteButton = new JButton("Mute");
-        muteButton.setBounds(WIDTH - 120, 10, 100, 30);
-        muteButton.setFont(new Font("Courier New", Font.PLAIN, 14));
-        muteButton.addActionListener(e -> {
-            soundMuted = !soundMuted;
-            muteButton.setText(soundMuted ? "Unmute" : "Mute");
-        });
-        add(muteButton);
-
-        volumeSlider = new JSlider(0, 100, (int)(volume * 100));
-        volumeSlider.setBounds(WIDTH - 160, 50, 140, 20);
-        volumeSlider.addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                volume = volumeSlider.getValue() / 100f;
+    private void startBackgroundMusic() {
+        if (soundMuted) return;
+        try {
+            AudioInputStream audioInput = AudioSystem.getAudioInputStream(new File("background.wav"));
+            backgroundMusic = AudioSystem.getClip();
+            backgroundMusic.open(audioInput);
+            FloatControl gainControl = (FloatControl) backgroundMusic.getControl(FloatControl.Type.MASTER_GAIN);
+            if (volume > 0f) {
+                gainControl.setValue(20f * (float) Math.log10(volume));
+            } else {
+                gainControl.setValue(gainControl.getMinimum());
             }
-        });
-        add(volumeSlider);
+            backgroundMusic.loop(Clip.LOOP_CONTINUOUSLY);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void startGame() {
@@ -94,7 +84,6 @@ public class SnakeGame extends JPanel implements ActionListener {
         movementTimer.start();
         scoreTimer.start();
     }
-
 
     private void placeFood() {
         Random random = new Random();
@@ -147,9 +136,9 @@ public class SnakeGame extends JPanel implements ActionListener {
     private void checkFood() {
         if (x[0] == foodX && y[0] == foodY) {
             bodyParts++;
-            score += 100;
-            playSound("eat.wav");
+            score += 10;
             placeFood();
+            playSound("eat.mp3");
         }
     }
 
@@ -223,23 +212,37 @@ public class SnakeGame extends JPanel implements ActionListener {
         }
     }
 
-   private void playSound(String fileName) {
+    private void playSound(String fileName) {
     if (soundMuted) return;
+
     try {
-        AudioInputStream audioInput = AudioSystem.getAudioInputStream(
-            getClass().getResource(fileName)
-        );
-			Clip clip = AudioSystem.getClip();
-			clip.open(audioInput);
-	
-			FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
-        if (volume > 0f) {
-				gainControl.setValue(20f * (float) Math.log10(volume));
-			} else {
-				gainControl.setValue(gainControl.getMinimum());
-			}
+        File soundFile = new File(fileName);
+        if (!soundFile.exists()) {
+            System.err.println("Sound file not found: " + fileName);
+            return;
+        }
+
+        AudioInputStream audioInput = AudioSystem.getAudioInputStream(soundFile);
+        Clip clip = AudioSystem.getClip();
+        clip.open(audioInput);
+
+        if (clip.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
+            FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+            if (volume > 0f) {
+                gainControl.setValue(20f * (float) Math.log10(volume));
+            } else {
+                gainControl.setValue(gainControl.getMinimum());
+            }
+        }
 
 			clip.start();
+			System.out.println("Playing sound: " + fileName);
+		} catch (UnsupportedAudioFileException e) {
+			System.err.println("Unsupported audio format: " + fileName);
+		} catch (IOException e) {
+			System.err.println("I/O error while playing sound: " + fileName);
+		} catch (LineUnavailableException e) {
+			System.err.println("Audio line unavailable for: " + fileName);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
