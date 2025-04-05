@@ -83,8 +83,9 @@ Enjoy the retro challenge!
 
 # menus
 
+<img width="650" alt="main menu" src="https://github.com/user-attachments/assets/f779416d-3c6c-4437-af9d-e0c651a1d78f" />
 
-<img width="650" alt="main menu" src="https://github.com/user-attachments/assets/3af8b8ae-b24a-4312-bec4-8ec5cacc8348" />
+
 
 <img width="650" alt="pause menu" src="https://github.com/user-attachments/assets/3f1af0a4-c8e6-4fdd-a002-f5699740ceaf" />
  
