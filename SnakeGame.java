@@ -8,9 +8,9 @@ import java.io.*;
 import java.util.Random;
 
 public class SnakeGame extends JPanel implements ActionListener {
-    private final int TILE_SIZE = 20;
-    private final int WIDTH = 600;
-    private final int HEIGHT = 600;
+    private final int TILE_SIZE = 12;
+    private final int WIDTH = 800;
+    private final int HEIGHT = 500;
     private final int TOTAL_TILES = (WIDTH * HEIGHT) / (TILE_SIZE * TILE_SIZE);
     private static final String HIGH_SCORE_FILE = "highscore.txt";
 
@@ -23,7 +23,7 @@ public class SnakeGame extends JPanel implements ActionListener {
     private boolean running = false;
     private boolean paused = false;
     private boolean gameStarted = false;
-    private int difficulty = 5;
+    private int difficulty = 6;
     private Timer movementTimer;
     private Timer scoreTimer;
     private int score = 0;
@@ -40,7 +40,7 @@ public class SnakeGame extends JPanel implements ActionListener {
     private JSlider difficultySlider;
 
     private int foodColorState = 0;
-    private final Color[] foodColors = {Color.RED, Color.ORANGE, Color.MAGENTA, Color.PINK, Color.YELLOW};
+    private final Color[] foodColors = {Color.RED, Color.ORANGE, Color.PINK, Color.YELLOW};
     private Timer foodColorTimer;
 
     private JButton restartButton;
@@ -56,6 +56,14 @@ public class SnakeGame extends JPanel implements ActionListener {
         startBackgroundMusic();
         setupFoodColorTimer();
         showStartMenu();
+        
+         // Make parent window non-resizable if exists
+		SwingUtilities.invokeLater(() -> {
+		Window window = SwingUtilities.getWindowAncestor(this);
+			if (window instanceof JFrame) {
+				((JFrame) window).setResizable(false);
+			}
+		});
     }
 
     private void setupAudioControls() {
@@ -79,7 +87,7 @@ public class SnakeGame extends JPanel implements ActionListener {
         add(muteButton);
 
         difficultySlider = new JSlider(1, 11, difficulty);
-        difficultySlider.setBounds(10, HEIGHT - 40, 200, 30);
+        difficultySlider.setBounds(12, HEIGHT - 60, 180, 30);
         difficultySlider.setToolTipText("Difficulty (1 - 11)");
         difficultySlider.setFocusable(false);
         difficultySlider.setPaintTicks(true);
