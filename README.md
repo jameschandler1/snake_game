@@ -84,16 +84,18 @@ Enjoy the retro challenge!
 
 # main menu
 
-<img width="550" alt="Screenshot 2025-04-04 at 11 39 45 PM" src="https://github.com/user-attachments/assets/6d740cc3-c376-4b00-b859-bc07f0c5daac" />
+<img width="650" alt="main menu" src="https://github.com/user-attachments/assets/6d740cc3-c376-4b00-b859-bc07f0c5daac" />
 
 # gameplay
 
-<img width="550" alt="Screenshot 2025-04-04 at 11 40 16 PM" src="https://github.com/user-attachments/assets/6afc65b1-131c-4d64-a730-80755e861df0" />
-## = = = = = = = = = =
-<img width="550" alt="Screenshot 2025-04-04 at 11 40 51 PM" src="https://github.com/user-attachments/assets/7189e42f-a464-41ae-94a0-d533d24614fd" />
-## = = = = = = = = = =
+<img width="650" alt="gameplay_1" src="https://github.com/user-attachments/assets/6afc65b1-131c-4d64-a730-80755e861df0" />
+
+= = = = = = = = = =
+<img width="650" alt="gameplay_2" src="https://github.com/user-attachments/assets/7189e42f-a464-41ae-94a0-d533d24614fd" />
+
+ = = = = = = = = = =
 
 # game over
 
-<img width="550" alt="Screenshot 2025-04-04 at 11 41 50 PM" src="https://github.com/user-attachments/assets/120bed03-0771-4bdd-bb57-1c52124017dc" />
+<img width="650" alt="game_over" src="https://github.com/user-attachments/assets/120bed03-0771-4bdd-bb57-1c52124017dc" />
 
