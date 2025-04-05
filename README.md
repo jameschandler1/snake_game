@@ -20,7 +20,7 @@ A retro-themed, arcade-style Snake game built with Java Swing. Features include 
 - Keyboard and mouse input coordination
 - change snake head color
 - restart button
-- mute/unmute toggle
+- mute/unmute toggle sfx
 
 ---
 
@@ -79,23 +79,28 @@ snake_game/
 
 ---
 
-
 Enjoy the retro challenge!
 
-# main menu
+# menus
 
-<img width="650" alt="main menu" src="https://github.com/user-attachments/assets/6d740cc3-c376-4b00-b859-bc07f0c5daac" />
-
-# gameplay
-
-<img width="650" alt="gameplay_1" src="https://github.com/user-attachments/assets/6afc65b1-131c-4d64-a730-80755e861df0" />
-
-= = = = = = = = = =
-<img width="650" alt="gameplay_2" src="https://github.com/user-attachments/assets/7189e42f-a464-41ae-94a0-d533d24614fd" />
+<img width="650" alt="pause menu" src="https://github.com/user-attachments/assets/3f1af0a4-c8e6-4fdd-a002-f5699740ceaf" />
 
  = = = = = = = = = =
 
+<img width="650" alt="main menu" src="https://github.com/user-attachments/assets/3af8b8ae-b24a-4312-bec4-8ec5cacc8348" />
+
+ = = = = = = = = = =
+ 
+# gameplay
+
+
+<img width="650" alt="gameplay 1" src="https://github.com/user-attachments/assets/c520d98a-539a-4eee-b4cb-129d6b02c0ea" />
+
+= = = = = = = = = =
+
+
 # game over
 
-<img width="650" alt="game_over" src="https://github.com/user-attachments/assets/120bed03-0771-4bdd-bb57-1c52124017dc" />
+<img width="650" alt="game-over" src="https://github.com/user-attachments/assets/e900c3b7-411b-4313-8d43-242e2f4d1a6c" />
+
 
