@@ -44,6 +44,15 @@ public class SnakeGame extends JPanel implements ActionListener {
     private Timer foodColorTimer;
 
     private JButton restartButton;
+    
+    private Color snakeHeadColor = Color.GREEN;
+	private Color snakeBodyColor = Color.LIGHT_GRAY;
+	private JComboBox<String> colorSelector;
+	
+	private boolean wallWrapEnabled = false;
+	private JCheckBox wallWrapCheckbox;
+
+
 
     public SnakeGame() {
         setPreferredSize(new Dimension(WIDTH, HEIGHT));
@@ -111,7 +120,33 @@ public class SnakeGame extends JPanel implements ActionListener {
         });
         restartButton.setVisible(false);
         add(restartButton);
+        
+        colorSelector = new JComboBox<>(new String[]{"Green", "Blue", "Purple", "White"});
+		colorSelector.setBounds(12, HEIGHT - 100, 100, 25);
+		colorSelector.setFocusable(false);
+		colorSelector.addActionListener(e -> {
+		String selected = (String) colorSelector.getSelectedItem();
+		switch (selected) {
+			case "Green" -> { snakeHeadColor = Color.GREEN; snakeBodyColor = Color.LIGHT_GRAY; }
+			case "Blue" -> { snakeHeadColor = Color.BLUE; snakeBodyColor = new Color(173, 216, 230); }
+			case "Purple" -> { snakeHeadColor = new Color(138, 43, 226); snakeBodyColor = new Color(216, 191, 216); }
+			case "White" -> { snakeHeadColor = Color.WHITE; snakeBodyColor = Color.GRAY; }
+			}
+		});
+		add(colorSelector);
+		
+		wallWrapCheckbox = new JCheckBox("Wrap Walls");
+		wallWrapCheckbox.setBounds(130, HEIGHT - 100, 120, 25);
+		wallWrapCheckbox.setOpaque(false);
+		wallWrapCheckbox.setFocusable(false);
+		wallWrapCheckbox.setForeground(Color.WHITE);
+		wallWrapCheckbox.addActionListener(e -> {
+			wallWrapEnabled = wallWrapCheckbox.isSelected();
+		});
+		add(wallWrapCheckbox);
+
     }
+    
 
     private void setupFoodColorTimer() {
         foodColorTimer = new Timer(150, e -> {
@@ -253,6 +288,8 @@ public class SnakeGame extends JPanel implements ActionListener {
 
     private void draw(Graphics g) {
         if (paused) {
+			g.setColor(new Color(0, 0, 0, 150)); // translucent black overlay
+			g.fillRect(0, 0, WIDTH, HEIGHT);
             g.setColor(Color.YELLOW);
             g.setFont(new Font("Courier New", Font.BOLD, 30));
             g.drawString("== PAUSED ==", WIDTH / 2 - 100, HEIGHT / 2);
@@ -316,9 +353,17 @@ public class SnakeGame extends JPanel implements ActionListener {
                 running = false;
             }
         }
-        if (x[0] < 0 || x[0] >= WIDTH || y[0] < 0 || y[0] >= HEIGHT) {
-            running = false;
-        }
+        if (wallWrapEnabled) {
+		if (x[0] < 0) x[0] = WIDTH - TILE_SIZE;
+		else if (x[0] >= WIDTH) x[0] = 0;
+		if (y[0] < 0) y[0] = HEIGHT - TILE_SIZE;
+		else if (y[0] >= HEIGHT) y[0] = 0;
+		} else {
+		if (x[0] < 0 || x[0] >= WIDTH || y[0] < 0 || y[0] >= HEIGHT) {
+        running = false;
+    }
+}
+
         if (!running) {
             movementTimer.stop();
             scoreTimer.stop();
@@ -454,6 +499,11 @@ public class SnakeGame extends JPanel implements ActionListener {
                         repaint();
                     }
                 }
+                case KeyEvent.VK_M -> {
+					soundMuted = !soundMuted;
+					muteButton.setText(soundMuted ? "Unmute" : "Mute");
+				}
+
             }
         }
     }
