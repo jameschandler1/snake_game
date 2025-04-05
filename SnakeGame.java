@@ -7,11 +7,15 @@ import java.awt.event.*;
 import java.io.*;
 import java.util.Random;
 
+
+
+// Main game class with static constants
 public class SnakeGame extends JPanel implements ActionListener {
-    private final int TILE_SIZE = 12;
-    private final int WIDTH = 800;
-    private final int HEIGHT = 500;
-    private final int TOTAL_TILES = (WIDTH * HEIGHT) / (TILE_SIZE * TILE_SIZE);
+    // Constants are now properly static
+    private static final int TILE_SIZE = 12;
+    private static final int WIDTH = 800;
+    private static final int HEIGHT = 500;
+    private static final int TOTAL_TILES = (WIDTH * HEIGHT) / (TILE_SIZE * TILE_SIZE);
     private static final String HIGH_SCORE_FILE = "highscore.txt";
 
     private final int[] x = new int[TOTAL_TILES];
@@ -31,72 +35,57 @@ public class SnakeGame extends JPanel implements ActionListener {
     private Image backgroundImage;
     private Clip backgroundMusic;
 
-    private final Font retroFont = new Font("Courier New", Font.BOLD, 22);
     private boolean soundMuted = false;
     private float volume = 1.0f;
-
-    private JSlider volumeSlider;
-    private JButton muteButton;
-    private JSlider difficultySlider;
 
     private int foodColorState = 0;
     private final Color[] foodColors = {Color.RED, Color.ORANGE, Color.PINK, Color.YELLOW};
     private Timer foodColorTimer;
-
-    private JButton restartButton;
     
     private Color snakeHeadColor = Color.GREEN;
-	private Color snakeBodyColor = Color.LIGHT_GRAY;
-	private JComboBox<String> colorSelector;
+    private Color snakeBodyColor = Color.LIGHT_GRAY;
+    private boolean wallWrapEnabled = false;
+    
+    // UI components organized into a separate class
+    private GameUI gameUI;
+
+    class GameUI {
 	
-	private boolean wallWrapEnabled = false;
-	private JCheckBox wallWrapCheckbox;
-
-
-
-    public SnakeGame() {
-        setPreferredSize(new Dimension(WIDTH, HEIGHT));
-        setFocusable(true);
-        setLayout(null);
-        addKeyListener(new KeyHandler());
-        loadHighScore();
-        loadBackground();
-        setupAudioControls();
-        startBackgroundMusic();
-        setupFoodColorTimer();
-        showStartMenu();
-        
-         // Make parent window non-resizable if exists
-		SwingUtilities.invokeLater(() -> {
-		Window window = SwingUtilities.getWindowAncestor(this);
-			if (window instanceof JFrame) {
-				((JFrame) window).setResizable(false);
-			}
-		});
+    final Font retroFont = new Font("Courier New", Font.BOLD, 22);
+    JSlider volumeSlider;
+    JButton muteButton;
+    JSlider difficultySlider;
+    JButton restartButton;
+    JComboBox<String> colorSelector;
+    JCheckBox wallWrapCheckbox;
+    
+    GameUI(SnakeGame game, int width, int height, float initialVolume, int initialDifficulty) {
+        setupAudioControls(game, width, height, initialVolume);
+        setupGameControls(game, width, height, initialDifficulty);
     }
-
-    private void setupAudioControls() {
-        volumeSlider = new JSlider(0, 100, (int) (volume * 100));
-        volumeSlider.setBounds(WIDTH - 160, 10, 100, 30);
+    
+    private void setupAudioControls(SnakeGame game, int width, int height, float initialVolume) {
+        volumeSlider = new JSlider(0, 100, (int) (initialVolume * 100));
+        volumeSlider.setBounds(width - 160, 10, 100, 30);
         volumeSlider.setToolTipText("Volume (dB)");
         volumeSlider.setFocusable(false);
         volumeSlider.addChangeListener(e -> {
-            volume = volumeSlider.getValue() / 100f;
+            game.setVolume(volumeSlider.getValue() / 100f);
         });
-        add(volumeSlider);
-
+        
         muteButton = new JButton("Mute");
-        muteButton.setBounds(WIDTH - 60, 10, 50, 30);
+        muteButton.setBounds(width - 60, 10, 50, 30);
         muteButton.setFont(new Font("Courier New", Font.PLAIN, 10));
         muteButton.setFocusable(false);
         muteButton.addActionListener(e -> {
-            soundMuted = !soundMuted;
-            muteButton.setText(soundMuted ? "Unmute" : "Mute");
+            game.toggleMute();
+            muteButton.setText(game.isMuted() ? "Unmute" : "Mute");
         });
-        add(muteButton);
-
-        difficultySlider = new JSlider(1, 11, difficulty);
-        difficultySlider.setBounds(12, HEIGHT - 60, 180, 30);
+    }
+    
+    private void setupGameControls(SnakeGame game, int width, int height, int initialDifficulty) {
+        difficultySlider = new JSlider(1, 11, initialDifficulty);
+        difficultySlider.setBounds(12, height - 60, 180, 30);
         difficultySlider.setToolTipText("Difficulty (1 - 11)");
         difficultySlider.setFocusable(false);
         difficultySlider.setPaintTicks(true);
@@ -104,49 +93,111 @@ public class SnakeGame extends JPanel implements ActionListener {
         difficultySlider.setMajorTickSpacing(1);
         difficultySlider.setSnapToTicks(true);
         difficultySlider.addChangeListener(e -> {
-            difficulty = difficultySlider.getValue();
-            if (movementTimer != null) {
-                movementTimer.setDelay(200 - (difficulty * 10));
-            }
+            game.setDifficulty(difficultySlider.getValue());
         });
-        add(difficultySlider);
-
+        
         restartButton = new JButton("Restart");
-        restartButton.setBounds((WIDTH - 100) / 2, HEIGHT - 40, 100, 30);
+        restartButton.setBounds((width - 100) / 2, height - 40, 100, 30);
         restartButton.setFont(new Font("Courier New", Font.PLAIN, 12));
         restartButton.setFocusable(false);
         restartButton.addActionListener(e -> {
-            resetGame();
+            game.resetGame();
         });
         restartButton.setVisible(false);
-        add(restartButton);
         
         colorSelector = new JComboBox<>(new String[]{"Green", "Blue", "Purple", "White"});
-		colorSelector.setBounds(12, HEIGHT - 100, 100, 25);
-		colorSelector.setFocusable(false);
-		colorSelector.addActionListener(e -> {
-		String selected = (String) colorSelector.getSelectedItem();
-		switch (selected) {
-			case "Green" -> { snakeHeadColor = Color.GREEN; snakeBodyColor = Color.LIGHT_GRAY; }
-			case "Blue" -> { snakeHeadColor = Color.BLUE; snakeBodyColor = new Color(173, 216, 230); }
-			case "Purple" -> { snakeHeadColor = new Color(138, 43, 226); snakeBodyColor = new Color(216, 191, 216); }
-			case "White" -> { snakeHeadColor = Color.WHITE; snakeBodyColor = Color.GRAY; }
-			}
-		});
-		add(colorSelector);
-		
-		wallWrapCheckbox = new JCheckBox("Wrap Walls");
-		wallWrapCheckbox.setBounds(130, HEIGHT - 100, 120, 25);
-		wallWrapCheckbox.setOpaque(false);
-		wallWrapCheckbox.setFocusable(false);
-		wallWrapCheckbox.setForeground(Color.WHITE);
-		wallWrapCheckbox.addActionListener(e -> {
-			wallWrapEnabled = wallWrapCheckbox.isSelected();
-		});
-		add(wallWrapCheckbox);
-
+        colorSelector.setBounds(12, height - 100, 100, 25);
+        colorSelector.setFocusable(false);
+        colorSelector.addActionListener(e -> {
+            String selected = (String) colorSelector.getSelectedItem();
+            switch (selected) {
+                case "Green" -> game.setSnakeColors(Color.GREEN, Color.LIGHT_GRAY);
+                case "Blue" -> game.setSnakeColors(Color.BLUE, new Color(173, 216, 230));
+                case "Purple" -> game.setSnakeColors(new Color(138, 43, 226), new Color(216, 191, 216));
+                case "White" -> game.setSnakeColors(Color.WHITE, Color.GRAY);
+            }
+        });
+        
+        wallWrapCheckbox = new JCheckBox("Wrap Walls");
+        wallWrapCheckbox.setBounds(130, height - 100, 120, 25);
+        wallWrapCheckbox.setOpaque(false);
+        wallWrapCheckbox.setFocusable(false);
+        wallWrapCheckbox.setForeground(Color.WHITE);
+        wallWrapCheckbox.addActionListener(e -> {
+            game.setWallWrapEnabled(wallWrapCheckbox.isSelected());
+        });
     }
     
+    void updateMuteButtonText(boolean muted) {
+        muteButton.setText(muted ? "Unmute" : "Mute");
+    }
+    
+    void toggleControlsVisibility(boolean visible) {
+        volumeSlider.setVisible(visible);
+        muteButton.setVisible(visible);
+        difficultySlider.setVisible(visible);
+    }
+    
+    void setRestartButtonVisible(boolean visible) {
+        restartButton.setVisible(visible);
+    }
+    
+    void addComponentsToPanel(JPanel panel) {
+        panel.add(volumeSlider);
+        panel.add(muteButton);
+        panel.add(difficultySlider);
+        panel.add(restartButton);
+        panel.add(colorSelector);
+        panel.add(wallWrapCheckbox);
+    }
+}
+
+
+    public SnakeGame() {
+        setPreferredSize(new Dimension(WIDTH, HEIGHT));
+        setFocusable(true);
+        setLayout(null);
+        addKeyListener(new KeyHandler());
+        
+        // Initialize UI components
+        gameUI = new GameUI(this, WIDTH, HEIGHT, volume, difficulty);
+        gameUI.addComponentsToPanel(this);
+        
+        loadHighScore();
+        loadBackground();
+        setupFoodColorTimer();
+        startBackgroundMusic();
+        showStartMenu();
+        
+        // Add window focus listener to auto-pause
+        addWindowFocusListener();
+        
+        // Make parent window non-resizable if exists
+        SwingUtilities.invokeLater(() -> {
+            Window window = SwingUtilities.getWindowAncestor(this);
+            if (window instanceof JFrame) {
+                ((JFrame) window).setResizable(false);
+            }
+        });
+    }
+
+    // Window focus listener to auto-pause when window loses focus
+    private void addWindowFocusListener() {
+        SwingUtilities.invokeLater(() -> {
+            Window window = SwingUtilities.getWindowAncestor(this);
+            if (window != null) {
+                window.addWindowFocusListener(new WindowAdapter() {
+                    @Override
+                    public void windowLostFocus(WindowEvent e) {
+                        if (running && !paused) {
+                            paused = true;
+                            repaint();
+                        }
+                    }
+                });
+            }
+        });
+    }
 
     private void setupFoodColorTimer() {
         foodColorTimer = new Timer(150, e -> {
@@ -166,87 +217,93 @@ public class SnakeGame extends JPanel implements ActionListener {
 
     private void startBackgroundMusic() {
         if (soundMuted) return;
-        try {
-            AudioInputStream audioInput = AudioSystem.getAudioInputStream(new File("background.wav"));
+        
+        // Using try-with-resources for proper resource management
+        try (AudioInputStream audioInput = AudioSystem.getAudioInputStream(new File("background.wav"))) {
             backgroundMusic = AudioSystem.getClip();
             backgroundMusic.open(audioInput);
-            FloatControl gainControl = (FloatControl) backgroundMusic.getControl(FloatControl.Type.MASTER_GAIN);
-            if (volume > 0f) {
-                gainControl.setValue(20f * (float) Math.log10(volume));
-            } else {
-                gainControl.setValue(gainControl.getMinimum());
-            }
+            updateVolumeControl(backgroundMusic);
             backgroundMusic.loop(Clip.LOOP_CONTINUOUSLY);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+    
+    private void updateVolumeControl(Clip clip) {
+        if (clip.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
+            FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+            if (volume > 0f) {
+                gainControl.setValue(20f * (float) Math.log10(volume));
+            } else {
+                gainControl.setValue(gainControl.getMinimum());
+            }
+        }
+    }
 
     private void showStartMenu() {
-    JDialog menuDialog = new JDialog();
-    menuDialog.setUndecorated(true);
-    menuDialog.setSize(WIDTH, HEIGHT);
-    menuDialog.setLocationRelativeTo(null);
-    menuDialog.setModal(true);
+        JDialog menuDialog = new JDialog();
+        menuDialog.setUndecorated(true);
+        menuDialog.setSize(WIDTH, HEIGHT);
+        menuDialog.setLocationRelativeTo(null);
+        menuDialog.setModal(true);
 
-    JPanel menuPanel = new JPanel() {
-        @Override
-        protected void paintComponent(Graphics g) {
-            super.paintComponent(g);
-            if (backgroundImage != null) {
-                g.drawImage(backgroundImage, 0, 0, WIDTH, HEIGHT, this);
-            } else {
-                g.setColor(Color.BLACK);
-                g.fillRect(0, 0, WIDTH, HEIGHT);
+        JPanel menuPanel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                if (backgroundImage != null) {
+                    g.drawImage(backgroundImage, 0, 0, WIDTH, HEIGHT, this);
+                } else {
+                    g.setColor(Color.BLACK);
+                    g.fillRect(0, 0, WIDTH, HEIGHT);
+                }
             }
-        }
-    };
-    menuPanel.setLayout(null);
-    menuPanel.setBackground(Color.BLACK);
+        };
+        menuPanel.setLayout(null);
+        menuPanel.setBackground(Color.BLACK);
 
-    JLabel titleLabel = new JLabel("S N A K E  G A M E", SwingConstants.CENTER);
-    titleLabel.setFont(retroFont.deriveFont(Font.BOLD, 42f));
-    titleLabel.setForeground(Color.GREEN);
-    titleLabel.setBounds(0, 40, WIDTH, 60);
-    menuPanel.add(titleLabel);
+        JLabel titleLabel = new JLabel("S N A K E  G A M E", SwingConstants.CENTER);
+        titleLabel.setFont(gameUI.retroFont.deriveFont(Font.BOLD, 42f));
+        titleLabel.setForeground(Color.GREEN);
+        titleLabel.setBounds(0, 40, WIDTH, 60);
+        menuPanel.add(titleLabel);
 
-    JTextArea infoArea = new JTextArea(
-        "➤ Use ← ↑ ↓ → to move\n" +
-        "➤ Press 'P' to pause\n" +
-        "➤ Choose difficulty (1–11)\n\n" +
-        "▶ Press ENTER to Start"
-    );
-    infoArea.setFont(retroFont.deriveFont(20f));
-    infoArea.setForeground(Color.CYAN);
-    infoArea.setBackground(new Color(0, 0, 0, 180));
-    infoArea.setOpaque(true);
-    infoArea.setEditable(false);
-    infoArea.setFocusable(false);
-    infoArea.setHighlighter(null);
-    infoArea.setBounds(WIDTH / 2 - 220, HEIGHT / 2 - 100, 440, 180);
-    menuPanel.add(infoArea);
+        JTextArea infoArea = new JTextArea(
+            "➤ Use ← ↑ ↓ → to move\n" +
+            "➤ Press 'P' to pause\n" +
+            "➤ Choose difficulty (1–11)\n\n" +
+            "▶ Press ENTER to Start"
+        );
+        infoArea.setFont(gameUI.retroFont.deriveFont(20f));
+        infoArea.setForeground(Color.CYAN);
+        infoArea.setBackground(new Color(0, 0, 0, 180));
+        infoArea.setOpaque(true);
+        infoArea.setEditable(false);
+        infoArea.setFocusable(false);
+        infoArea.setHighlighter(null);
+        infoArea.setBounds(WIDTH / 2 - 220, HEIGHT / 2 - 100, 440, 180);
+        menuPanel.add(infoArea);
 
-    menuDialog.setContentPane(menuPanel);
+        menuDialog.setContentPane(menuPanel);
 
-    // Key listener to start the game
-    menuDialog.addKeyListener(new KeyAdapter() {
-        @Override
-        public void keyPressed(KeyEvent e) {
-            if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-                menuDialog.dispose();
+        // Key listener to start the game
+        menuDialog.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    menuDialog.dispose();
+                }
             }
-        }
-    });
+        });
 
-    // Ensure key listener works
-    menuDialog.setFocusable(true);
-    menuDialog.requestFocusInWindow();
+        // Ensure key listener works
+        menuDialog.setFocusable(true);
+        menuDialog.requestFocusInWindow();
 
-    menuDialog.setVisible(true);
-    gameStarted = true;
-    startGame();
-}
-
+        menuDialog.setVisible(true);
+        gameStarted = true;
+        startGame();
+    }
 
     private void startGame() {
         score = 0;
@@ -264,10 +321,8 @@ public class SnakeGame extends JPanel implements ActionListener {
         });
         movementTimer.start();
         scoreTimer.start();
-        volumeSlider.setVisible(true);
-        muteButton.setVisible(true);
-        difficultySlider.setVisible(true);
-        restartButton.setVisible(false);
+        gameUI.toggleControlsVisibility(true);
+        gameUI.setRestartButtonVisible(false);
     }
 
     private void placeFood() {
@@ -288,8 +343,8 @@ public class SnakeGame extends JPanel implements ActionListener {
 
     private void draw(Graphics g) {
         if (paused) {
-			g.setColor(new Color(0, 0, 0, 150)); // translucent black overlay
-			g.fillRect(0, 0, WIDTH, HEIGHT);
+            g.setColor(new Color(0, 0, 0, 150)); // translucent black overlay
+            g.fillRect(0, 0, WIDTH, HEIGHT);
             g.setColor(Color.YELLOW);
             g.setFont(new Font("Courier New", Font.BOLD, 30));
             g.drawString("== PAUSED ==", WIDTH / 2 - 100, HEIGHT / 2);
@@ -302,24 +357,21 @@ public class SnakeGame extends JPanel implements ActionListener {
             g.fillOval(foodX, foodY, TILE_SIZE, TILE_SIZE);
 
             for (int i = 0; i < bodyParts; i++) {
-                g.setColor(i == 0 ? Color.GREEN : Color.LIGHT_GRAY);
+                // Fixed: Using snakeHeadColor and snakeBodyColor instead of hardcoded values
+                g.setColor(i == 0 ? snakeHeadColor : snakeBodyColor);
                 g.fillRect(x[i], y[i], TILE_SIZE, TILE_SIZE);
             }
 
             g.setColor(Color.CYAN);
-            g.setFont(retroFont);
+            g.setFont(gameUI.retroFont);
             g.drawString("SCORE: " + score, 10, 25);
             g.drawString("HIGH SCORE: " + highScore, 10, 50);
 
-            volumeSlider.setVisible(true);
-            muteButton.setVisible(true);
-            difficultySlider.setVisible(true);
-            restartButton.setVisible(false);
+            gameUI.toggleControlsVisibility(true);
+            gameUI.setRestartButtonVisible(false);
         } else {
-            volumeSlider.setVisible(false);
-            muteButton.setVisible(false);
-            difficultySlider.setVisible(false);
-            restartButton.setVisible(true);
+            gameUI.toggleControlsVisibility(false);
+            gameUI.setRestartButtonVisible(true);
             gameOver(g);
         }
     }
@@ -353,16 +405,17 @@ public class SnakeGame extends JPanel implements ActionListener {
                 running = false;
             }
         }
+        
         if (wallWrapEnabled) {
-		if (x[0] < 0) x[0] = WIDTH - TILE_SIZE;
-		else if (x[0] >= WIDTH) x[0] = 0;
-		if (y[0] < 0) y[0] = HEIGHT - TILE_SIZE;
-		else if (y[0] >= HEIGHT) y[0] = 0;
-		} else {
-		if (x[0] < 0 || x[0] >= WIDTH || y[0] < 0 || y[0] >= HEIGHT) {
-        running = false;
-    }
-}
+            if (x[0] < 0) x[0] = WIDTH - TILE_SIZE;
+            else if (x[0] >= WIDTH) x[0] = 0;
+            if (y[0] < 0) y[0] = HEIGHT - TILE_SIZE;
+            else if (y[0] >= HEIGHT) y[0] = 0;
+        } else {
+            if (x[0] < 0 || x[0] >= WIDTH || y[0] < 0 || y[0] >= HEIGHT) {
+                running = false;
+            }
+        }
 
         if (!running) {
             movementTimer.stop();
@@ -392,7 +445,7 @@ public class SnakeGame extends JPanel implements ActionListener {
         }
     }
 
-    private void resetGame() {
+    void resetGame() {
         bodyParts = 5;
         direction = 'R';
         score = 0;
@@ -404,10 +457,8 @@ public class SnakeGame extends JPanel implements ActionListener {
         movementTimer.setDelay(200 - (difficulty * 10));
         movementTimer.start();
         scoreTimer.start();
-        volumeSlider.setVisible(true);
-        muteButton.setVisible(true);
-        difficultySlider.setVisible(true);
-        restartButton.setVisible(false);
+        gameUI.toggleControlsVisibility(true);
+        gameUI.setRestartButtonVisible(false);
         repaint();
     }
 
@@ -433,6 +484,7 @@ public class SnakeGame extends JPanel implements ActionListener {
     private void playSound(String fileName) {
         if (soundMuted) return;
 
+        // Using try-with-resources for proper resource management
         try {
             File soundFile = new File(fileName);
             if (!soundFile.exists()) {
@@ -440,21 +492,12 @@ public class SnakeGame extends JPanel implements ActionListener {
                 return;
             }
 
-            AudioInputStream audioInput = AudioSystem.getAudioInputStream(soundFile);
-            Clip clip = AudioSystem.getClip();
-            clip.open(audioInput);
-
-            if (clip.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
-                FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
-                if (volume > 0f) {
-                    gainControl.setValue(20f * (float) Math.log10(volume));
-                } else {
-                    gainControl.setValue(gainControl.getMinimum());
-                }
+            try (AudioInputStream audioInput = AudioSystem.getAudioInputStream(soundFile)) {
+                Clip clip = AudioSystem.getClip();
+                clip.open(audioInput);
+                updateVolumeControl(clip);
+                clip.start();
             }
-
-            clip.start();
-            System.out.println("Playing sound: " + fileName);
         } catch (UnsupportedAudioFileException e) {
             System.err.println("Unsupported audio format: " + fileName);
         } catch (IOException e) {
@@ -476,23 +519,14 @@ public class SnakeGame extends JPanel implements ActionListener {
         repaint();
     }
 
+    // KeyHandler that checks game state first before handling movement keys
     private class KeyHandler extends KeyAdapter {
         @Override
         public void keyPressed(KeyEvent e) {
             requestFocusInWindow();
+            
+            // Global controls like pause that work regardless of game state
             switch (e.getKeyCode()) {
-                case KeyEvent.VK_LEFT -> {
-                    if (direction != 'R' && !paused) direction = 'L';
-                }
-                case KeyEvent.VK_RIGHT -> {
-                    if (direction != 'L' && !paused) direction = 'R';
-                }
-                case KeyEvent.VK_UP -> {
-                    if (direction != 'D' && !paused) direction = 'U';
-                }
-                case KeyEvent.VK_DOWN -> {
-                    if (direction != 'U' && !paused) direction = 'D';
-                }
                 case KeyEvent.VK_P, KeyEvent.VK_ENTER -> {
                     if (gameStarted) {
                         paused = !paused;
@@ -500,10 +534,26 @@ public class SnakeGame extends JPanel implements ActionListener {
                     }
                 }
                 case KeyEvent.VK_M -> {
-					soundMuted = !soundMuted;
-					muteButton.setText(soundMuted ? "Unmute" : "Mute");
-				}
-
+                    toggleMute();
+                }
+            }
+            
+            // Movement controls only work when game is running and not paused
+            if (running && !paused) {
+                switch (e.getKeyCode()) {
+                    case KeyEvent.VK_LEFT -> {
+                        if (direction != 'R') direction = 'L';
+                    }
+                    case KeyEvent.VK_RIGHT -> {
+                        if (direction != 'L') direction = 'R';
+                    }
+                    case KeyEvent.VK_UP -> {
+                        if (direction != 'D') direction = 'U';
+                    }
+                    case KeyEvent.VK_DOWN -> {
+                        if (direction != 'U') direction = 'D';
+                    }
+                }
             }
         }
     }
@@ -518,5 +568,38 @@ public class SnakeGame extends JPanel implements ActionListener {
             frame.setLocationRelativeTo(null);
             frame.setVisible(true);
         });
+    }
+    
+    // Getter/setter methods for use by GameUI
+    void setDifficulty(int difficulty) {
+        this.difficulty = difficulty;
+        if (movementTimer != null) {
+            movementTimer.setDelay(200 - (difficulty * 10));
+        }
+    }
+    
+    void setVolume(float volume) {
+        this.volume = volume;
+        if (backgroundMusic != null && backgroundMusic.isOpen()) {
+            updateVolumeControl(backgroundMusic);
+        }
+    }
+    
+    void toggleMute() {
+        soundMuted = !soundMuted;
+        gameUI.updateMuteButtonText(soundMuted);
+    }
+    
+    boolean isMuted() {
+        return soundMuted;
+    }
+    
+    void setSnakeColors(Color headColor, Color bodyColor) {
+        this.snakeHeadColor = headColor;
+        this.snakeBodyColor = bodyColor;
+    }
+    
+    void setWallWrapEnabled(boolean enabled) {
+        this.wallWrapEnabled = enabled;
     }
 }
