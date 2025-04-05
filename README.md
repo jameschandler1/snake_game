@@ -79,7 +79,16 @@ snake_game/
 
 Enjoy the retro challenge!
 
+# main menu
+
 <img width="750" alt="Screenshot 2025-04-04 at 8 28 35 PM" src="https://github.com/user-attachments/assets/e3c671ae-91b5-4b3a-9a1e-79ca627d68f8" />
-<img width="750" alt="Screenshot 2025-04-04 at 8 28 58 PM" src="https://github.com/user-attachments/assets/a9259be7-7609-4082-a948-55e526e89524" />
+
+# gameplay
+
 <img width="750" alt="Screenshot 2025-04-04 at 8 29 27 PM" src="https://github.com/user-attachments/assets/b9d769d2-7a16-4309-ba47-d0b0403c3109" />
+
+# game over
+
+<img width="750" alt="Screenshot 2025-04-04 at 8 28 58 PM" src="https://github.com/user-attachments/assets/a9259be7-7609-4082-a948-55e526e89524" />
+
 
