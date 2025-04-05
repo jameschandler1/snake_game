@@ -18,6 +18,9 @@ A retro-themed, arcade-style Snake game built with Java Swing. Features include 
 - Pause and resume functionality (`P` key)
 - Start and game over menus with arcade style
 - Keyboard and mouse input coordination
+- change snake head color
+- restart button
+- mute/unmute toggle
 
 ---
 
@@ -81,14 +84,16 @@ Enjoy the retro challenge!
 
 # main menu
 
-<img width="750" alt="Screenshot 2025-04-04 at 8 28 35 PM" src="https://github.com/user-attachments/assets/e3c671ae-91b5-4b3a-9a1e-79ca627d68f8" />
+<img width="550" alt="Screenshot 2025-04-04 at 11 39 45 PM" src="https://github.com/user-attachments/assets/6d740cc3-c376-4b00-b859-bc07f0c5daac" />
 
 # gameplay
 
-<img width="750" alt="Screenshot 2025-04-04 at 8 29 27 PM" src="https://github.com/user-attachments/assets/b9d769d2-7a16-4309-ba47-d0b0403c3109" />
+<img width="550" alt="Screenshot 2025-04-04 at 11 40 16 PM" src="https://github.com/user-attachments/assets/6afc65b1-131c-4d64-a730-80755e861df0" />
+## = = = = = = = = = =
+<img width="550" alt="Screenshot 2025-04-04 at 11 40 51 PM" src="https://github.com/user-attachments/assets/7189e42f-a464-41ae-94a0-d533d24614fd" />
+## = = = = = = = = = =
 
 # game over
 
-<img width="750" alt="Screenshot 2025-04-04 at 8 28 58 PM" src="https://github.com/user-attachments/assets/a9259be7-7609-4082-a948-55e526e89524" />
-
+<img width="550" alt="Screenshot 2025-04-04 at 11 41 50 PM" src="https://github.com/user-attachments/assets/120bed03-0771-4bdd-bb57-1c52124017dc" />
 
