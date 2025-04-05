@@ -1,14 +1,24 @@
 	package snake_game;
 
-	import javax.sound.sampled.*;
-	import javax.swing.*;
-	import java.awt.*;
-	import java.awt.event.*;
-	import java.io.*;
-	import java.util.Random;
+import javax.sound.sampled.*;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.io.*;
+import java.util.Random;
 
-
-	// Main game class with static constants
+/**
+ * Snake Game - A classic arcade-style snake game with modern features
+ * 
+ * Features:
+ * - Classic snake gameplay with retro-style graphics
+ * - Adjustable difficulty levels (1-11)
+ * - Wall wrap mode toggle
+ * - Sound effects and background music with volume control
+ * - High score tracking
+ * - Animated food colors
+ * - Customizable snake colors
+ */
 	public class SnakeGame extends JPanel implements ActionListener {
 		// Constants are now properly static
 		private static final int TILE_SIZE = 12;
@@ -19,9 +29,11 @@
 		private static final int PLAY_AREA_HEIGHT = HEIGHT - (2 * BORDER_SIZE);
 		private static final int TOTAL_TILES = (PLAY_AREA_WIDTH * PLAY_AREA_HEIGHT) / (TILE_SIZE * TILE_SIZE);
 		private static final String HIGH_SCORE_FILE = "highscore.txt";
+		// endregion
 
-		private final int[] x = new int[TOTAL_TILES];
-		private final int[] y = new int[TOTAL_TILES];
+		// region Game State Variables
+		private final int[] x = new int[TOTAL_TILES]; // Snake X coordinates
+		private final int[] y = new int[TOTAL_TILES]; // Snake Y coordinates
 
 		private int bodyParts = 5;
 		private int foodX, foodY;
@@ -39,7 +51,9 @@
 
 		private boolean soundMuted = false;
 		private float volume = 1.0f;
+		// endregion
 
+		// region Visual Effects
 		private int foodColorState = 0;
 		private final Color[] foodColors = {Color.RED, Color.ORANGE, Color.PINK, Color.YELLOW};
 		private Timer foodColorTimer;
@@ -47,9 +61,10 @@
 		private Color snakeHeadColor = Color.GREEN;
 		private Color snakeBodyColor = Color.LIGHT_GRAY;
 		private boolean wallWrapEnabled = false;
-		
-		// UI components organized into a separate class
-		private GameUI gameUI;
+		// endregion
+
+		// region UI Components
+		private GameUI gameUI; // Main UI controller
 		
 		// Side panels for UI controls
 		private JPanel topPanel;
@@ -57,8 +72,11 @@
 		private JPanel leftPanel;
 		private JPanel rightPanel;
 		private JPanel gamePanel; // The actual gameplay area
-		
-		// UI components organized into separate classes
+		// endregion
+
+		/**
+		 * Inner class handling all UI components and their setup
+		 */
 	class GameUI {
 		final Font retroFont = new Font("Courier New", Font.BOLD, 22);
 		JSlider volumeSlider;
@@ -278,6 +296,13 @@
 			});
 		}
 
+		// endregion
+
+		// region Visual Effects
+
+		/**
+		 * Sets up timer for animating food color.
+		 */
 		private void setupFoodColorTimer() {
 			foodColorTimer = new Timer(150, e -> {
 				foodColorState = (foodColorState + 1) % foodColors.length;
@@ -286,6 +311,9 @@
 			foodColorTimer.start();
 		}
 
+		/**
+		 * Loads the background image for the game.
+		 */
 		private void loadBackground() {
 			try {
 				backgroundImage = new ImageIcon("retro_bg.png").getImage();
@@ -294,6 +322,13 @@
 			}
 		}
 
+		// endregion
+
+		// region Audio Management
+
+		/**
+		 * Starts playing background music in a loop.
+		 */
 		private void startBackgroundMusic() {
 			if (soundMuted) return;
 			
@@ -308,6 +343,10 @@
 			}
 		}
 		
+		/**
+		 * Updates the volume level of an audio clip.
+		 * @param clip The audio clip to adjust
+		 */
 		private void updateVolumeControl(Clip clip) {
 			if (clip.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
 				FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
@@ -395,6 +434,10 @@
 			startGame();
 		}
 
+		/**
+		 * Initializes a new game session.
+		 * Sets up initial snake position, timers, and UI state.
+		 */
 		private void startGame() {
 			score = 0;
 			placeFood();
@@ -420,12 +463,33 @@
 			gameUI.updateScoreDisplay(score, highScore);
 		}
 
+		/**
+		 * Places food at a random position in the play area.
+		 * Ensures food doesn't spawn on the snake's body.
+		 */
 		private void placeFood() {
 			Random random = new Random();
-			foodX = random.nextInt(PLAY_AREA_WIDTH / TILE_SIZE) * TILE_SIZE + BORDER_SIZE;
-			foodY = random.nextInt(PLAY_AREA_HEIGHT / TILE_SIZE) * TILE_SIZE + BORDER_SIZE;
+			
+			// Keep trying until we find a position that doesn't overlap with the snake
+			boolean validPosition;
+			do {
+				foodX = random.nextInt(PLAY_AREA_WIDTH / TILE_SIZE) * TILE_SIZE + BORDER_SIZE;
+				foodY = random.nextInt(PLAY_AREA_HEIGHT / TILE_SIZE) * TILE_SIZE + BORDER_SIZE;
+				
+				// Check if the food overlaps with any part of the snake
+				validPosition = true;
+				for (int i = 0; i < bodyParts; i++) {
+					if (x[i] == foodX && y[i] == foodY) {
+						validPosition = false;
+						break;
+					}
+				}
+			} while (!validPosition);
 		}
 
+		/**
+		 * Renders the game state, including snake, food, and UI overlays.
+		 */
 		private void drawGame(Graphics g) {
 			if (paused) {
 				g.setColor(new Color(0, 0, 0, 150)); // translucent black overlay
@@ -453,6 +517,12 @@
 			}
 		}
 
+		// region Core Game Logic
+
+		/**
+		 * Updates the snake's position based on current direction.
+		 * Moves the body segments to follow the head.
+		 */
 		private void move() {
 			for (int i = bodyParts; i > 0; i--) {
 				x[i] = x[i - 1];
@@ -467,8 +537,31 @@
 			}
 		}
 
+		/**
+		 * Checks if the snake's head has collided with food.
+		 * Handles coordinate wrapping in wall wrap mode.
+		 * Updates score and places new food when eaten.
+		 */
 		private void checkFood() {
-			if (x[0] == foodX && y[0] == foodY) {
+			// Calculate play area boundaries
+			int minX = BORDER_SIZE;
+			int maxX = WIDTH - BORDER_SIZE;
+			int minY = BORDER_SIZE;
+			int maxY = HEIGHT - BORDER_SIZE;
+			
+			// Get snake head position, handling wrapping if enabled
+			int headX = x[0];
+			int headY = y[0];
+			
+			if (wallWrapEnabled) {
+				// Normalize wrapped coordinates to match food coordinates
+				if (headX < minX) headX = maxX - TILE_SIZE;
+				else if (headX >= maxX) headX = minX;
+				if (headY < minY) headY = maxY - TILE_SIZE;
+				else if (headY >= maxY) headY = minY;
+			}
+			
+			if (headX == foodX && headY == foodY) {
 				bodyParts++;
 				score += 10;
 				gameUI.updateScoreDisplay(score, highScore);
@@ -477,6 +570,11 @@
 			}
 		}
 
+		/**
+		 * Checks for collisions with walls and snake's own body.
+		 * Handles wall wrapping if enabled, otherwise ends game on wall collision.
+		 * Ends game if snake collides with itself.
+		 */
 		private void checkCollision() {
 			for (int i = bodyParts; i > 0; i--) {
 				if (x[0] == x[i] && y[0] == y[i]) {
@@ -510,6 +608,13 @@
 			}
 		}
 
+		// endregion
+
+		// region Game State Management
+
+		/**
+		 * Displays the game over screen with final score.
+		 */
 		private void gameOver(Graphics g) {
 			g.setColor(Color.YELLOW);
 			g.setFont(new Font("Courier New", Font.BOLD, 36));
@@ -527,6 +632,9 @@
 			g.drawString(highScoreText, (PLAY_AREA_WIDTH - smallMetrics.stringWidth(highScoreText)) / 2, PLAY_AREA_HEIGHT / 2 + 70);
 		}
 
+		/**
+		 * Resets the high score to zero and saves to file.
+		 */
 		private void resetHighScore() {
 			highScore = 0;
 			try (BufferedWriter writer = new BufferedWriter(new FileWriter(HIGH_SCORE_FILE))) {
@@ -536,6 +644,9 @@
 			}
 		}
 
+		/**
+		 * Resets the game to initial state while preserving settings.
+		 */
 		void resetGame() {
 			bodyParts = 5;
 			direction = 'R';
@@ -557,6 +668,13 @@
 			repaint();
 		}
 
+		// endregion
+
+		// region Score Management
+
+		/**
+		 * Loads the high score from file.
+		 */
 		private void loadHighScore() {
 			try (BufferedReader reader = new BufferedReader(new FileReader(HIGH_SCORE_FILE))) {
 				highScore = Integer.parseInt(reader.readLine());
@@ -565,6 +683,9 @@
 			}
 		}
 
+		/**
+		 * Saves the current high score to file if it's higher than previous.
+		 */
 		private void saveHighScore() {
 			if (score > highScore) {
 				highScore = score;
@@ -576,6 +697,10 @@
 			}
 		}
 
+		/**
+		 * Plays a sound effect file.
+		 * @param fileName Name of the sound file to play
+		 */
 		private void playSound(String fileName) {
 			if (soundMuted) return;
 
@@ -653,6 +778,12 @@
 			}
 		}
 
+		// endregion
+
+		/**
+		 * Entry point of the application.
+		 * Sets up the game window and starts the game.
+		 */
 		public static void main(String[] args) {
 			SwingUtilities.invokeLater(() -> {
 				JFrame frame = new JFrame("Snake Game");
@@ -666,6 +797,13 @@
 		}
 		
 		// Getter/setter methods for use by GameUI
+		// endregion
+
+		// region Settings Management
+
+		/**
+		 * Updates game difficulty and adjusts snake speed.
+		 */
 		void setDifficulty(int difficulty) {
 			this.difficulty = difficulty;
 			if (movementTimer != null) {
@@ -673,6 +811,9 @@
 			}
 		}
 		
+		/**
+		 * Updates game volume level.
+		 */
 		void setVolume(float volume) {
 			this.volume = volume;
 			if (backgroundMusic != null && backgroundMusic.isOpen()) {
@@ -680,20 +821,32 @@
 			}
 		}
 		
+		/**
+		 * Toggles sound muting.
+		 */
 		void toggleMute() {
 			soundMuted = !soundMuted;
 			gameUI.updateMuteButtonText(soundMuted);
 		}
 		
+		/**
+		 * @return Current mute state
+		 */
 		boolean isMuted() {
 			return soundMuted;
 		}
 		
+		/**
+		 * Updates snake head and body colors.
+		 */
 		void setSnakeColors(Color headColor, Color bodyColor) {
 			this.snakeHeadColor = headColor;
 			this.snakeBodyColor = bodyColor;
 		}
 		
+		/**
+		 * Toggles wall wrap mode.
+		 */
 		void setWallWrapEnabled(boolean enabled) {
 			this.wallWrapEnabled = enabled;
 		}
