@@ -1,41 +1,94 @@
-# snake_game
+# Snake Game
 
- made using ChatGPT (free) some additional tweaks done by hand but mostly just ai, all contained within a single directory 'snake_game'.
+A retro-themed, arcade-style Snake game built with Java Swing. Features include animated food, dynamic difficulty, sound effects, score tracking, and a stylish interface.
 
-## dependancy/library
+---
 
- - JPanel
- - JFrame
+## Features
 
-## prompts
- 
- 1. create a snake game application in java with a gui all contained within a single directory named snake_game
- 3. add a prompt after the game ends to ask user to play again
- 5. also can you add functionality to manage a score each seed the snake eats will be worth ten points and every sec your alive you gain 1 point
- 6. can you create a different timer for the score variable that is separate of the snakes movement timer and have it increment the score variable every 1000 milliseconds
- 7. can you add functionality to save the high-score in a separate text file and make it so upon restart it displays the current high-score
- 8. make it so when the game resets the snake is positioned at 0,0
- 9. enhance the GUI, format the text that displays the current score and the high score in a retro way and also make sure the changes are made to the play again prompt as well.
- 10. yes please add sound effects and a retro themed background
- 11. can you create a volume and mute functionality for the sound effects
- 12. create a volume slider and button on gui 
+- Classic Snake gameplay
+- Retro UI design with pixel font and themed background
+- Volume and mute controls with dB-style slider
+- Customizable difficulty (levels 1 to 11)
+- Animated food colors
+- Score system:
+  - +10 per food eaten
+  - +1 every second survived
+- Persistent high score saved to `highscore.txt`
+- Pause and resume functionality (`P` key)
+- Start and game over menus with arcade style
+- Keyboard and mouse input coordination
 
-## how to run
+---
 
-1. To compile and run it:
-2. Create a directory named snake_game.
-3. Save the file as SnakeGame.java inside snake_game.
-4. Open a terminal or command prompt and navigate to snake_game.
-5. Compile the program using:
+## Getting Started
 
-<img width="600" alt="Screenshot 2025-04-02 at 3 07 16 PM" src="https://github.com/user-attachments/assets/154ea3cf-ddc5-48fc-8939-43affb97ef6f" />
+### Requirements
+- Java JDK 8 or newer
+- Any Java IDE (e.g., IntelliJ, Eclipse) or command-line tools
 
-6. run the program:
+### Directory Structure
+```
+snake_game/
+├── SnakeGame.java
+├── background.png
+├── eat.wav
+├── gameover.wav
+├── music.wav
+├── highscore.txt
+```
 
-<img width="600" alt="Screenshot 2025-04-02 at 3 07 50 PM" src="https://github.com/user-attachments/assets/91c1709b-34ac-4316-b8a0-69168a646fc8" />
+### Running the Game
+1. Place all files in the same directory.
+2. Compile:
+   ```sh
+   javac snake_game/SnakeGame.java
+   ```
+3. Run:
+   ```sh
+   java snake_game.SnakeGame
+   ```
 
-## play agian
-<img width="750" alt="Screenshot 2025-04-02 at 4 39 10 PM" src="https://github.com/user-attachments/assets/cfe71e05-31c9-4f47-9153-af059d9bda26" />
+---
 
-## gameplay
-<img width="750" alt="Screenshot 2025-04-02 at 4 40 19 PM" src="https://github.com/user-attachments/assets/ff7140f0-7fd7-446b-998d-f1e0458d40db" />
+## Controls
+
+- Arrow keys: Move the snake
+- P: Pause / Resume
+- ENTER: Start the game from main menu
+- Mouse: Adjust volume and difficulty, click buttons
+
+---
+
+## Configuration
+
+
+- **Difficulty**: Use the slider at the bottom left (1 = slowest, 11 = fastest)
+- **Volume**: Use the top-right slider. Mute/unmute via button.
+- **High Score**: Stored in `highscore.txt`. Do not delete this file if you want to keep your record.
+
+---
+
+## Notes
+- Sound files (`eat.wav`, `gameover.wav`, `music.wav`) must be valid WAV files.
+- Ensure `background.png` is 600x600 or larger for best appearance.
+- On some systems, audio may require permission to run properly.
+
+---
+
+
+Enjoy the retro challenge!
+
+# main menu
+
+<img width="750" alt="Screenshot 2025-04-04 at 8 28 35 PM" src="https://github.com/user-attachments/assets/e3c671ae-91b5-4b3a-9a1e-79ca627d68f8" />
+
+# gameplay
+
+<img width="750" alt="Screenshot 2025-04-04 at 8 29 27 PM" src="https://github.com/user-attachments/assets/b9d769d2-7a16-4309-ba47-d0b0403c3109" />
+
+# game over
+
+<img width="750" alt="Screenshot 2025-04-04 at 8 28 58 PM" src="https://github.com/user-attachments/assets/a9259be7-7609-4082-a948-55e526e89524" />
+
+
