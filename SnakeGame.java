@@ -110,12 +110,22 @@ import java.util.Random;
 			volumeSlider = new JSlider(0, 100, (int) (initialVolume * 100));
 			volumeSlider.setToolTipText("Volume (dB)");
 			volumeSlider.setFocusable(false);
+			volumeSlider.setPaintTicks(true);
+			volumeSlider.setPaintLabels(true);
+			volumeSlider.setMajorTickSpacing(20);
+			volumeSlider.setMinorTickSpacing(10);
+			volumeSlider.setForeground(Color.YELLOW);
+			volumeSlider.setBackground(Color.BLACK);
 			volumeSlider.addChangeListener(e -> {
 				game.setVolume(volumeSlider.getValue() / 100f);
 			});
 			
 			muteButton = new JButton("Mute");
-			muteButton.setFont(new Font("Courier New", Font.PLAIN, 10));
+			muteButton.setFont(new Font("Courier New", Font.BOLD, 12));
+			muteButton.setForeground(Color.YELLOW);
+			muteButton.setBackground(Color.BLACK);
+			muteButton.setOpaque(true);
+			muteButton.setBorderPainted(false);
 			muteButton.setFocusable(false);
 			muteButton.addActionListener(e -> {
 				game.toggleMute();
@@ -131,12 +141,19 @@ import java.util.Random;
 			difficultySlider.setPaintLabels(true);
 			difficultySlider.setMajorTickSpacing(1);
 			difficultySlider.setSnapToTicks(true);
+			difficultySlider.setForeground(Color.YELLOW);
+			difficultySlider.setBackground(Color.BLACK);
+			difficultySlider.setFont(new Font("Courier New", Font.BOLD, 12));
 			difficultySlider.addChangeListener(e -> {
 				game.setDifficulty(difficultySlider.getValue());
 			});
 			
 			restartButton = new JButton("Restart");
-			restartButton.setFont(new Font("Courier New", Font.PLAIN, 12));
+			restartButton.setFont(new Font("Courier New", Font.BOLD, 14));
+			restartButton.setForeground(Color.RED);
+			restartButton.setBackground(Color.BLACK);
+			restartButton.setOpaque(true);
+			restartButton.setBorderPainted(false);
 			restartButton.setFocusable(false);
 			restartButton.addActionListener(e -> {
 				game.resetGame();
@@ -145,6 +162,9 @@ import java.util.Random;
 			
 			colorSelector = new JComboBox<>(new String[]{"Green", "Blue", "Purple", "White"});
 			colorSelector.setFocusable(false);
+			colorSelector.setBackground(Color.BLACK);
+			colorSelector.setForeground(Color.CYAN);
+			colorSelector.setFont(new Font("Courier New", Font.BOLD, 12));
 			colorSelector.addActionListener(e -> {
 				String selected = (String) colorSelector.getSelectedItem();
 				switch (selected) {
@@ -158,7 +178,8 @@ import java.util.Random;
 			wallWrapCheckbox = new JCheckBox("Wrap Walls");
 			wallWrapCheckbox.setOpaque(false);
 			wallWrapCheckbox.setFocusable(false);
-			wallWrapCheckbox.setForeground(Color.WHITE);
+			wallWrapCheckbox.setForeground(Color.YELLOW);
+			wallWrapCheckbox.setFont(new Font("Courier New", Font.BOLD, 12));
 			wallWrapCheckbox.addActionListener(e -> {
 				game.setWallWrapEnabled(wallWrapCheckbox.isSelected());
 			});
