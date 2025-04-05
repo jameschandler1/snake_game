@@ -348,10 +348,10 @@
 			menuPanel.add(titleLabel);
 
 			// Center the info text
-			String infoText = "➤ Use ← ↑ ↓ → to move\n" +
-							  "➤ Press 'P' to pause\n" +
-							  "➤ Choose difficulty (1–11)\n\n" +
-							  "▶ Press ENTER to Start";
+			String infoText = "\tUse ← ↑ ↓ → to move\n" +
+							  "\tPress 'P' to pause\n" +
+							  "\tChoose difficulty (1–11)\n\n" +
+							  "\tPress ENTER to Start";
 							  
 			JTextArea infoArea = new JTextArea(infoText);
 			infoArea.setFont(gameUI.retroFont.deriveFont(20f));
@@ -359,6 +359,9 @@
 			infoArea.setBackground(new Color(0, 0, 0, 180));
 			infoArea.setOpaque(true);
 			infoArea.setEditable(false);
+			infoArea.setAlignmentX(Component.CENTER_ALIGNMENT);
+			// Position infoArea below titleLabel and center it
+			infoArea.setBounds((WIDTH - 300) / 2, titleLabel.getY() + titleLabel.getHeight() + 20, 300, 120);
 			infoArea.setFocusable(false);
 			infoArea.setHighlighter(null);
 			
