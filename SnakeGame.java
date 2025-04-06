@@ -6,6 +6,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.util.Random;
+import java.util.Hashtable;
 
 /**
  * Snake Game - A classic arcade-style snake game with modern features
@@ -20,15 +21,22 @@ import java.util.Random;
  * - Customizable snake colors
  */
 	public class SnakeGame extends JPanel implements ActionListener {
-		// Constants are now properly static
+		// Constants and Theme Colors
 		private static final int TILE_SIZE = 12;
 		private static final int WIDTH = 800;
 		private static final int HEIGHT = 500;
-		private static final int BORDER_SIZE = 60; // Border size for UI elements
+		private static final int BORDER_SIZE = 60;
 		private static final int PLAY_AREA_WIDTH = WIDTH - (2 * BORDER_SIZE);
 		private static final int PLAY_AREA_HEIGHT = HEIGHT - (2 * BORDER_SIZE);
 		private static final int TOTAL_TILES = (PLAY_AREA_WIDTH * PLAY_AREA_HEIGHT) / (TILE_SIZE * TILE_SIZE);
 		private static final String HIGH_SCORE_FILE = "highscore.txt";
+
+		// Modern color scheme
+		private static final Color BACKGROUND_COLOR = new Color(23, 23, 33);
+		private static final Color PANEL_COLOR = new Color(32, 32, 44);
+		private static final Color ACCENT_COLOR = new Color(99, 102, 241);
+		private static final Color TEXT_COLOR = new Color(229, 231, 235);
+		private static final Color BUTTON_HOVER_COLOR = new Color(79, 82, 221);
 		// endregion
 
 		// region Game State Variables
@@ -78,8 +86,11 @@ import java.util.Random;
 		 * Inner class handling all UI components and their setup
 		 */
 	class GameUI {
-		final Font retroFont = new Font("Courier New", Font.BOLD, 22);
-		JSlider volumeSlider;
+		// UI Fonts
+		final Font retroFont = new Font("Courier New", Font.BOLD, 24);
+		final Font titleFont = new Font("Arial", Font.BOLD, 24);
+		final Font buttonFont = new Font("Arial", Font.BOLD, 16);
+		final Font labelFont = new Font("Arial", Font.PLAIN, 18);
 		JButton muteButton;
 		JSlider difficultySlider;
 		JButton restartButton;
@@ -97,29 +108,63 @@ import java.util.Random;
 		}
 		
 		private void setupScoreLabels() {
-			scoreLabel = new JLabel("SCORE: 0");
-			scoreLabel.setFont(retroFont);
-			scoreLabel.setForeground(Color.CYAN);
+			scoreLabel = new JLabel("Score: 0");
+			scoreLabel.setFont(titleFont);
+			scoreLabel.setForeground(TEXT_COLOR);
 			
-			highScoreLabel = new JLabel("HIGH SCORE: 0");
-			highScoreLabel.setFont(retroFont);
-			highScoreLabel.setForeground(Color.CYAN);
+			highScoreLabel = new JLabel("High Score: 0");
+			highScoreLabel.setFont(titleFont);
+			highScoreLabel.setForeground(TEXT_COLOR);
 		}
 		
 		private void setupAudioControls(SnakeGame game, int width, int height, float initialVolume) {
-			volumeSlider = new JSlider(0, 100, (int) (initialVolume * 100));
-			volumeSlider.setToolTipText("Volume (dB)");
-			volumeSlider.setFocusable(false);
-			volumeSlider.setPaintTicks(true);
-			volumeSlider.setPaintLabels(true);
-			volumeSlider.setMajorTickSpacing(20);
-			volumeSlider.setMinorTickSpacing(10);
-			volumeSlider.setForeground(Color.YELLOW);
-			volumeSlider.setBackground(Color.BLACK);
-			volumeSlider.addChangeListener(e -> {
-				game.setVolume(volumeSlider.getValue() / 100f);
+			// Create volume control buttons and label
+			JButton volumeDownButton = new JButton("-");
+			volumeDownButton.setFont(new Font("Courier New", Font.BOLD, 12));
+			volumeDownButton.setForeground(Color.YELLOW);
+			volumeDownButton.setBackground(Color.BLACK);
+			volumeDownButton.setOpaque(true);
+			volumeDownButton.setBorderPainted(false);
+			volumeDownButton.setFocusable(false);
+
+			JButton volumeUpButton = new JButton("+");
+			volumeUpButton.setFont(new Font("Courier New", Font.BOLD, 12));
+			volumeUpButton.setForeground(Color.YELLOW);
+			volumeUpButton.setBackground(Color.BLACK);
+			volumeUpButton.setOpaque(true);
+			volumeUpButton.setBorderPainted(false);
+			volumeUpButton.setFocusable(false);
+			final JLabel volumeLabel = new JLabel((int)(getVolume() * 100) + "%");
+			volumeLabel.setFont(new Font("Courier New", Font.BOLD, 12));
+			volumeLabel.setForeground(Color.YELLOW);
+
+			// Add action listeners to buttons
+			volumeDownButton.addActionListener(e -> {
+				int currentVolume = (int)(game.getVolume() * 100);
+				if (currentVolume > 0) {
+					currentVolume -= 10;
+					game.setVolume(currentVolume / 100f);
+					volumeLabel.setText(currentVolume + "%");
+				}
 			});
-			
+
+			volumeUpButton.addActionListener(e -> {
+				int currentVolume = (int)(game.getVolume() * 100);
+				if (currentVolume < 100) {
+					currentVolume += 10;
+					game.setVolume(currentVolume / 100f);
+					volumeLabel.setText(currentVolume + "%");
+				}
+			});
+
+			JPanel audioPanel = new JPanel();
+			audioPanel.setOpaque(false);
+
+			// Add components to audio panel
+			audioPanel.add(volumeDownButton);
+			audioPanel.add(volumeLabel);
+			audioPanel.add(volumeUpButton);
+
 			muteButton = new JButton("Mute");
 			muteButton.setFont(new Font("Courier New", Font.BOLD, 12));
 			muteButton.setForeground(Color.YELLOW);
@@ -135,7 +180,7 @@ import java.util.Random;
 		
 		private void setupGameControls(SnakeGame game, int width, int height, int initialDifficulty) {
 			difficultySlider = new JSlider(1, 11, initialDifficulty);
-			difficultySlider.setToolTipText("Difficulty (1 - 11)");
+			difficultySlider.setToolTipText("Difficulty (1–11)");
 			difficultySlider.setFocusable(false);
 			difficultySlider.setPaintTicks(true);
 			difficultySlider.setPaintLabels(true);
@@ -147,6 +192,12 @@ import java.util.Random;
 			difficultySlider.addChangeListener(e -> {
 				game.setDifficulty(difficultySlider.getValue());
 			});
+			Hashtable<Integer, JLabel> difficultyLabels = new Hashtable<>();
+			difficultyLabels.put(1, new JLabel("1"));
+			difficultyLabels.put(6, new JLabel("6"));
+			difficultyLabels.put(11, new JLabel("11"));
+			difficultySlider.setLabelTable(difficultyLabels);
+			difficultySlider.setPaintLabels(true);
 			
 			restartButton = new JButton("Restart");
 			restartButton.setFont(new Font("Courier New", Font.BOLD, 14));
@@ -179,7 +230,8 @@ import java.util.Random;
 			wallWrapCheckbox.setOpaque(false);
 			wallWrapCheckbox.setFocusable(false);
 			wallWrapCheckbox.setForeground(Color.YELLOW);
-			wallWrapCheckbox.setFont(new Font("Courier New", Font.BOLD, 12));
+			wallWrapCheckbox.setFont(new Font("Courier New", Font.BOLD, 14));
+			wallWrapCheckbox.setPreferredSize(new Dimension(120, 20)); // Set preferred size to accommodate text
 			wallWrapCheckbox.addActionListener(e -> {
 				game.setWallWrapEnabled(wallWrapCheckbox.isSelected());
 			});
@@ -195,9 +247,8 @@ import java.util.Random;
 		}
 		
 		void toggleControlsVisibility(boolean visible) {
-			volumeSlider.setVisible(visible);
-			muteButton.setVisible(visible);
 			difficultySlider.setVisible(visible);
+			muteButton.setVisible(visible);
 		}
 		
 		void setRestartButtonVisible(boolean visible) {
@@ -258,7 +309,11 @@ import java.util.Random;
 			topPanel = new JPanel();
 			topPanel.setPreferredSize(new Dimension(WIDTH, BORDER_SIZE));
 			topPanel.setBackground(new Color(20, 20, 40));
-			topPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 20, 5));
+			topPanel.setLayout(new BorderLayout());
+			topPanel.setBorder(BorderFactory.createEmptyBorder(0, BORDER_SIZE, 0, BORDER_SIZE)); // Add padding to align with inner window
+			topPanel.add(gameUI.scoreLabel, BorderLayout.WEST);
+			topPanel.add(gameUI.highScoreLabel, BorderLayout.CENTER);
+			topPanel.add(gameUI.wallWrapCheckbox, BorderLayout.EAST);
 			
 			bottomPanel = new JPanel();
 			bottomPanel.setPreferredSize(new Dimension(WIDTH, BORDER_SIZE));
@@ -273,23 +328,64 @@ import java.util.Random;
 			rightPanel.setPreferredSize(new Dimension(BORDER_SIZE, HEIGHT));
 			rightPanel.setBackground(new Color(20, 20, 40));
 			
-			// Add score labels to top panel
-			topPanel.add(gameUI.scoreLabel);
-			topPanel.add(gameUI.highScoreLabel);
-			
-			// Add audio controls to top panel
+			// Add audio controls to bottom panel
 			JPanel audioPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 			audioPanel.setOpaque(false);
-			audioPanel.add(gameUI.volumeSlider);
+			JLabel volumeLabel = new JLabel("Volume:");
+			volumeLabel.setForeground(Color.YELLOW);
+			volumeLabel.setFont(new Font("Courier New", Font.BOLD, 12));
+			audioPanel.add(volumeLabel);
 			audioPanel.add(gameUI.muteButton);
-			topPanel.add(Box.createHorizontalGlue());
-			topPanel.add(audioPanel);
+			JButton volumeDownButton = new JButton("-");
+			volumeDownButton.setFont(new Font("Courier New", Font.BOLD, 12));
+			volumeDownButton.setForeground(Color.YELLOW);
+			volumeDownButton.setBackground(Color.BLACK);
+			volumeDownButton.setOpaque(true);
+			volumeDownButton.setBorderPainted(false);
+			volumeDownButton.setFocusable(false);
+			volumeDownButton.addActionListener(e -> {
+				int currentVolume = (int)(getVolume() * 100);
+				if (currentVolume > 0) {
+					currentVolume -= 10;
+					setVolume(currentVolume / 100f);
+					volumeLabel.setText(currentVolume + "%");
+				}
+			});
+			audioPanel.add(volumeDownButton);
+			final JLabel volumeLabel2 = new JLabel((int)(getVolume() * 100) + "%");
+			volumeLabel2.setFont(new Font("Courier New", Font.BOLD, 12));
+			volumeLabel2.setForeground(Color.YELLOW);
+			audioPanel.add(volumeLabel2);
+			JButton volumeUpButton = new JButton("+");
+			volumeUpButton.setFont(new Font("Courier New", Font.BOLD, 12));
+			volumeUpButton.setForeground(Color.YELLOW);
+			volumeUpButton.setBackground(Color.BLACK);
+			volumeUpButton.setOpaque(true);
+			volumeUpButton.setBorderPainted(false);
+			volumeUpButton.setFocusable(false);
+			volumeUpButton.addActionListener(e -> {
+				int currentVolume = (int)(getVolume() * 100);
+				if (currentVolume < 100) {
+					currentVolume += 10;
+					setVolume(currentVolume / 100f);
+					volumeLabel2.setText(currentVolume + "%");
+				}
+			});
+			audioPanel.add(volumeUpButton);
 			
 			// Add game controls to bottom panel
-			bottomPanel.add(gameUI.difficultySlider);
-			bottomPanel.add(gameUI.colorSelector);
-			bottomPanel.add(gameUI.wallWrapCheckbox);
-			bottomPanel.add(gameUI.restartButton);
+			JPanel gameControlsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+			gameControlsPanel.setOpaque(false);
+			JLabel difficultyLabel = new JLabel("Difficulty:");
+			difficultyLabel.setForeground(Color.YELLOW);
+			difficultyLabel.setFont(new Font("Courier New", Font.BOLD, 12));
+			gameControlsPanel.add(difficultyLabel);
+			gameControlsPanel.add(gameUI.difficultySlider);
+			gameControlsPanel.add(gameUI.restartButton);
+
+			bottomPanel.add(gameControlsPanel);
+			bottomPanel.add(Box.createHorizontalGlue());
+			bottomPanel.add(audioPanel);
 			
 			// Add panels to the main layout
 			add(topPanel, BorderLayout.NORTH);
@@ -299,7 +395,7 @@ import java.util.Random;
 			add(gamePanel, BorderLayout.CENTER);
 		}
 
-		// Window focus listener to auto-pause when window loses focus
+		// Window focus listener to auto-pause
 		private void addWindowFocusListener() {
 			SwingUtilities.invokeLater(() -> {
 				Window window = SwingUtilities.getWindowAncestor(this);
@@ -517,12 +613,16 @@ import java.util.Random;
 				g.fillRect(0, 0, PLAY_AREA_WIDTH, PLAY_AREA_HEIGHT);
 				g.setColor(Color.YELLOW);
 				g.setFont(new Font("Courier New", Font.BOLD, 30));
-				FontMetrics metrics = getFontMetrics(g.getFont());
+				FontMetrics pausedMetrics = getFontMetrics(g.getFont());
 				String pausedText = "== PAUSED ==";
-				g.drawString(pausedText, (PLAY_AREA_WIDTH - metrics.stringWidth(pausedText)) / 2, PLAY_AREA_HEIGHT / 2);
+				int pausedTextWidth = pausedMetrics.stringWidth(pausedText);
+				g.drawString(pausedText, (PLAY_AREA_WIDTH - pausedTextWidth) / 2, PLAY_AREA_HEIGHT / 2 - 20);
+
 				g.setFont(new Font("Courier New", Font.PLAIN, 18));
+				FontMetrics continueMetrics = getFontMetrics(g.getFont());
 				String continueText = "Press ENTER or P to continue";
-				g.drawString(continueText, (PLAY_AREA_WIDTH - metrics.stringWidth(continueText)) / 2, PLAY_AREA_HEIGHT / 2 + 30);
+				int continueTextWidth = continueMetrics.stringWidth(continueText);
+				g.drawString(continueText, (PLAY_AREA_WIDTH - continueTextWidth) / 2, PLAY_AREA_HEIGHT / 2 + 20);
 			}
 
 			if (running) {
@@ -769,7 +869,9 @@ import java.util.Random;
 				// Global controls like pause that work regardless of game state
 				switch (e.getKeyCode()) {
 					case KeyEvent.VK_P, KeyEvent.VK_ENTER -> {
-						if (gameStarted) {
+						if (!running) {
+							resetGame();
+						} else if (gameStarted) {
 							paused = !paused;
 							gamePanel.repaint();
 						}
@@ -798,7 +900,6 @@ import java.util.Random;
 				}
 			}
 		}
-
 		// endregion
 
 		/**
@@ -816,8 +917,7 @@ import java.util.Random;
 				frame.setVisible(true);
 			});
 		}
-		
-		// Getter/setter methods for use by GameUI
+
 		// endregion
 
 		// region Settings Management
@@ -831,17 +931,21 @@ import java.util.Random;
 				movementTimer.setDelay(200 - (difficulty * 10));
 			}
 		}
+
+		public float getVolume() {
+			return volume;
+		}
 		
 		/**
 		 * Updates game volume level.
 		 */
-		void setVolume(float volume) {
-			this.volume = volume;
+		public void setVolume(float newVolume) {
+			this.volume = newVolume;
 			if (backgroundMusic != null && backgroundMusic.isOpen()) {
 				updateVolumeControl(backgroundMusic);
 			}
 		}
-		
+
 		/**
 		 * Toggles sound muting.
 		 */

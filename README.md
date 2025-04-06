@@ -8,7 +8,7 @@ A retro-themed, arcade-style Snake game built with Java Swing. Features include 
 
 - Classic Snake gameplay
 - Retro UI design with pixel font and themed background
-- Volume and mute controls with dB-style slider
+- Volume controls with plus/minus buttons and percentage display
 - Customizable difficulty (levels 1 to 11)
 - Animated food colors
 - Score system:
@@ -67,7 +67,7 @@ snake_game/
 
 
 - **Difficulty**: Use the slider at the bottom left (1 = slowest, 11 = fastest)
-- **Volume**: Use the top-right slider. Mute/unmute via button.
+- **Volume**: Use the top-right plus/minus buttons. Mute/unmute via button.
 - **High Score**: Stored in `highscore.txt`. Do not delete this file if you want to keep your record.
 
 ---
@@ -98,5 +98,3 @@ Enjoy the retro challenge!
 # game over
 
 <img width="650" alt="game-over" src="https://github.com/user-attachments/assets/e900c3b7-411b-4313-8d43-242e2f4d1a6c" />
-
-
