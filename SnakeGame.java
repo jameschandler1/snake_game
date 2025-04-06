@@ -1,4 +1,3 @@
-	package snake_game;
 
 import javax.sound.sampled.*;
 import javax.swing.*;
