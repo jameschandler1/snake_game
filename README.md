@@ -21,8 +21,8 @@ A retro-themed, arcade-style Snake game built with Java Swing. Features include 
 - change snake head color
 - restart button
 - mute/unmute toggle sfx
-- wrap walls mode
-- background music w/ volume slider
+
+---
 
 ## Getting Started
 
